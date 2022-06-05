@@ -2,7 +2,7 @@
 
 ## init docker
 ```bash
-	docker-composer up -d;
+	docker-compose up -d;
 ```
 ## download repositories
 ```bash
