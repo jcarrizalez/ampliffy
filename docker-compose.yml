@@ -1,0 +1,95 @@
+version: '3.7'
+
+services:
+
+  #MySQL Service
+  ampliffy-mysql:
+    container_name: ampliffy-mysql
+    image: mysql:5.7.22
+    restart: always
+    tty: true
+    ports:
+      - "0:3306"
+    environment:
+      MYSQL_DATABASE: ampliffy_laravel
+      MYSQL_ROOT_PASSWORD: 000000
+      MYSQL_USER: develop
+      MYSQL_PASSWORD: 123456
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-config/mysql/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - /opt/docker/ampliffy-mysql:/var/lib/mysql/
+      - ./docker-config/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      ampliffy:
+        ipv4_address: 20.1.0.2
+
+  #MenCached
+  ampliffy-memcached:
+    container_name: ampliffy-memcached
+    image: memcached:latest
+    restart: always
+    ports:
+      - "0:11211"
+    networks:
+      ampliffy:
+        ipv4_address: 20.1.0.3
+
+  #Nginx Service
+  ampliffy-nginx:
+    container_name: ampliffy-nginx
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "9003:80"
+    volumes:
+      - ./:/var/www
+      - ./docker-config/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      ampliffy:
+        ipv4_address: 20.1.0.4
+
+  #PHP Service
+  ampliffy-php:
+    container_name: ampliffy-php
+    build:
+      args:
+        user: develop
+        uid: 1000
+      context: .
+      dockerfile: ./docker-config/php/Dockerfile
+    #image: phpdockerio/php74-fpm
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker-config/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    links:
+     - ampliffy-mysql
+     - ampliffy-memcached
+    depends_on:
+     - ampliffy-nginx
+     - ampliffy-mysql
+     - ampliffy-memcached
+    networks:
+      ampliffy:
+        ipv4_address: 20.1.0.5
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+
+#Docker Networks
+networks:
+  ampliffy:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 20.1.0.0/16
