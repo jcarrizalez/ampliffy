@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+## chmod +x init
+## ./init
+
+mkdir -p repositorios;
+
+if [ ! -d "`pwd`/repositorios/library1" ]; then
+	git clone https://github.com/jcarrizalez/ampliffy_library1.git repositorios/library1;
+fi
+
+if [ ! -d "`pwd`/repositorios/library2" ]; then
+	git clone https://github.com/jcarrizalez/ampliffy_library2.git repositorios/library2;
+fi
+
+if [ ! -d "`pwd`/repositorios/library4" ]; then
+	git clone https://github.com/jcarrizalez/ampliffy_library4.git repositorios/library4;
+fi
+
+if [ ! -d "`pwd`/repositorios/project1" ]; then
+	git clone https://github.com/jcarrizalez/ampliffy_project1.git repositorios/project1;
+fi
+
+if [ ! -d "`pwd`/repositorios/project2" ]; then
+	git clone https://github.com/jcarrizalez/ampliffy_project2.git repositorios/project2;
+fi
